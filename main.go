@@ -3,29 +3,43 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
-	"github.com/akamensky/argparse"
 	"github.com/spf13/cobra"
 )
 
-var p = argparse.NewParser("fs", "")
+var (
+	Path string
+	Port int
+)
+
+func init() {
+	RootCmd.PersistentFlags().StringVarP(&Path, "dir", "d", "./", "server dir")
+	RootCmd.PersistentFlags().IntVarP(&Port, "port", "p", 8989, "server port")
+}
 
 var RootCmd = &cobra.Command{
 	Use:   "fs",
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		path := p.String("d", "dir", &argparse.Options{Default: "./"})
-		port := p.Int("p", "port", &argparse.Options{Default: 8888})
-		if err := p.Parse(append(append([]string{"fs"}, args...))); err != nil {
-			cmd.PrintErrln(err)
-			_ = cmd.Help()
+		var dir http.Dir
+		if filepath.IsAbs(Path) {
+			dir = http.Dir(Path)
+		} else {
+			pwd, err := os.Getwd()
+			if err != nil {
+				cmd.PrintErrln(err)
+				return
+			}
+			dir = http.Dir(filepath.Join(pwd, Path))
 		}
 
-		fs := http.FileServer(http.Dir(*path))
-		if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), fs); err != nil && err != http.ErrServerClosed {
+		addr := fmt.Sprintf(":%d", Port)
+		if err := http.ListenAndServe(addr, http.FileServer(dir)); err != nil && err != http.ErrServerClosed {
 			cmd.PrintErrln(err)
-			_ = cmd.Help()
+			return
 		}
 	},
 }
