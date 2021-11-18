@@ -15,7 +15,7 @@ var RootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		path := p.String("d", "dir", &argparse.Options{Default: "."})
+		path := p.String("d", "dir", &argparse.Options{Default: "./"})
 		port := p.Int("p", "port", &argparse.Options{Default: 8888})
 		if err := p.Parse(append(append([]string{"fs"}, args...))); err != nil {
 			cmd.PrintErrln(err)
