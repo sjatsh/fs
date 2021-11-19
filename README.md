@@ -9,9 +9,12 @@ go install github.com/sjatsh/fs
 
 # Usage
 ```go
-fs -d . -p 8888
+Usage:
+fs [flags]
 
 Flags:
-  -d: dir path
-  -p: server port
+-d, --dir string   server dir (default "./")
+-h, --help         help for fs
+-p, --port int     server port (default 8989)
+
 ```
